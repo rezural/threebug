@@ -3,6 +3,21 @@ name = "bevy_debug_server"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "bevy_debug"
+path = "src/lib.rs"
 
 [dependencies]
+bevy = { path = "vendor/bevy" }
+# bevy_spicy_networking = { git = "https://github.com/rezural/bevy_spicy_networking.git", branch = "bevy-main" }
+bevy_spicy_networking = { path = "vendor/bevy_spicy_networking" }
+chrono = { version = "0.4", features = [ "serde" ] }
+parry3d = { version = "0.7", features = ["serde-serialize"] }
+serde = "1"
+typetag = "0.1"
+
+[patch.crates-io]
+bevy = { path = "vendor/bevy" }
+
+[patch."https://github.com/bevyengine/bevy"]
+bevy = { path = "vendor/bevy" }
