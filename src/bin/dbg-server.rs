@@ -2,20 +2,13 @@ use std::net::SocketAddr;
 
 use bevy::{
     core::Time,
-    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    diagnostic::LogDiagnosticsPlugin,
     ecs::prelude::*,
     input::Input,
-    math::{Quat, Vec3},
-    pbr2::{
-        AmbientLight, DirectionalLight, DirectionalLightBundle, PbrBundle, PointLight,
-        PointLightBundle, StandardMaterial,
-    },
-    prelude::{error, info, App, Assets, BuildChildren, KeyCode, Transform},
-    render2::{
-        camera::{OrthographicProjection, PerspectiveCameraBundle},
-        color::Color,
-        mesh::{shape, Mesh},
-    },
+    math::Vec3,
+    pbr2::StandardMaterial,
+    prelude::{error, info, App, Assets, KeyCode, Transform},
+    render2::{camera::PerspectiveCameraBundle, mesh::Mesh},
     PipelinedDefaultPlugins,
 };
 
@@ -35,7 +28,8 @@ fn main() {
     // Register parry server messages
     ipc::parry::register_server_network_messages(&mut app);
     app.add_startup_system(setup_networking)
-        .add_system(handle_connection_events);
+        .add_system(handle_connection_events)
+        .add_system(handle_aabb_messages);
 
     app.run();
 }
@@ -63,7 +57,7 @@ struct DebugClient(ConnectionId);
 
 fn handle_connection_events(
     mut commands: Commands,
-    net: Res<NetworkServer>,
+    _net: Res<NetworkServer>,
     mut network_events: EventReader<ServerNetworkEvent>,
 ) {
     // info!("handle_connection_events");
@@ -84,10 +78,10 @@ fn handle_connection_events(
 
 fn handle_aabb_messages(
     mut new_messages: EventReader<NetworkData<bevy_debug::ipc::parry::AABB>>,
-    net: Res<NetworkServer>,
+    // net: Res<NetworkServer>,
 ) {
     for message in new_messages.iter() {
-        let user = message.source();
+        // let user = message.source();
 
         info!("Received aabb from user: {:?}", message.aabb);
     }

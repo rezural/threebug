@@ -9,12 +9,14 @@ path = "src/lib.rs"
 
 [dependencies]
 bevy = { path = "vendor/bevy" }
-# bevy_spicy_networking = { git = "https://github.com/rezural/bevy_spicy_networking.git", branch = "bevy-main" }
-bevy_spicy_networking = { path = "vendor/bevy_spicy_networking" }
+bevy_spicy_networking = { git = "https://github.com/rezural/bevy_spicy_networking.git", branch = "standalone-network-server" }
+# bevy_spicy_networking = { path = "vendor/bevy_spicy_networking" }
 chrono = { version = "0.4", features = [ "serde" ] }
 parry3d = { version = "0.7", features = ["serde-serialize"] }
 serde = "1"
 typetag = "0.1"
+tracing = "0.1"
+tracing-subscriber = "0.2"
 
 [patch.crates-io]
 bevy = { path = "vendor/bevy" }
