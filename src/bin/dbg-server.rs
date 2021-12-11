@@ -26,10 +26,10 @@ fn main() {
         .add_plugin(bevy_spicy_networking::ServerPlugin);
 
     // Register parry server messages
-    ipc::parry::register_server_network_messages(&mut app);
+    ipc::register_server_network_messages(&mut app);
     app.add_startup_system(setup_networking)
         .add_system(handle_connection_events)
-        .add_system(handle_aabb_messages);
+        .add_system(handle_messages);
 
     app.run();
 }
@@ -76,14 +76,17 @@ fn handle_connection_events(
     }
 }
 
-fn handle_aabb_messages(
-    mut new_messages: EventReader<NetworkData<bevy_debug::ipc::parry::AABB>>,
+fn handle_messages(
+    mut new_messages: EventReader<NetworkData<bevy_debug::ipc::DebugEntity>>,
     // net: Res<NetworkServer>,
 ) {
     for message in new_messages.iter() {
         // let user = message.source();
 
-        info!("Received aabb from user: {:?}", message.aabb);
+        info!(
+            "Received debug message from client: {}, {:?}",
+            message.timestamp, message.entity_type
+        );
     }
 }
 

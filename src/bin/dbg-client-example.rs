@@ -1,4 +1,5 @@
-use std::{error::Error, net::SocketAddr};
+use core::time;
+use std::{error::Error, net::SocketAddr, thread};
 
 use bevy::prelude::{error, info};
 use bevy_spicy_networking::{NetworkSettings, StandaloneNetworkClient};
@@ -22,14 +23,20 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     info!("connected");
 
-    let aabb = parry3d::bounding_volume::AABB::new(
-        Point::new(-1.0, -1.0, -1.0),
-        Point::new(1.0, 1.0, 1.0),
-    );
+    for i in 1..10 {
+        let i = i as f32;
+        let neg = i * -1.0;
+        let aabb =
+            parry3d::bounding_volume::AABB::new(Point::new(neg, neg, neg), Point::new(i, i, i));
 
-    match client.send_message(bevy_debug::ipc::parry::AABB::new(aabb)) {
-        Ok(_) => info!("sent aabb"),
-        Err(e) => error!("Couldnt send aabb to server: {:?}", e),
+        let debug_entity_type =
+            bevy_debug::ipc::parry::ParryDebugEntityType::new_aabb_entity(aabb.into());
+
+        match client.send_message(debug_entity_type) {
+            Ok(_) => info!("sent aabb"),
+            Err(e) => error!("Couldnt send aabb to server: {:?}", e),
+        }
+        thread::sleep(time::Duration::from_millis(1000));
     }
 
     client.disconnect();

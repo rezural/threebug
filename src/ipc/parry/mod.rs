@@ -1,31 +1,15 @@
-use bevy::prelude::App;
-use bevy_spicy_networking::*;
-use chrono::{DateTime, Local};
 use parry3d::bounding_volume;
 use serde::*;
 
-#[derive(Serialize, Deserialize)]
-pub struct AABB {
-    pub timestamp: DateTime<Local>,
-    pub aabb: bounding_volume::AABB,
+use super::{DebugEntity, DebugEntityType};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum ParryDebugEntityType {
+    AABB { aabb: bounding_volume::AABB },
 }
 
-impl AABB {
-    pub fn new(aabb: bounding_volume::AABB) -> Self {
-        Self {
-            timestamp: Local::now(),
-            aabb,
-        }
+impl ParryDebugEntityType {
+    pub fn new_aabb_entity(aabb: bounding_volume::AABB) -> DebugEntity {
+        DebugEntity::new(DebugEntityType::Parry(ParryDebugEntityType::AABB { aabb }))
     }
-}
-
-#[typetag::serde]
-impl NetworkMessage for AABB {}
-
-impl ServerMessage for AABB {
-    const NAME: &'static str = "bevy_debug_server::parry::AABB";
-}
-
-pub fn register_server_network_messages(app: &mut App) {
-    app.listen_for_server_message::<AABB>();
 }
