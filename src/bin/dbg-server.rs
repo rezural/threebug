@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, ops::Deref};
 
 use bevy::{
     core::Time,
@@ -12,7 +12,10 @@ use bevy::{
     PipelinedDefaultPlugins,
 };
 
-use bevy_debug::ipc;
+use bevy_debug::{
+    ipc,
+    server::store::{DebugSession, DebugSessions},
+};
 use bevy_spicy_networking::*;
 
 fn main() {
@@ -30,6 +33,8 @@ fn main() {
     app.add_startup_system(setup_networking)
         .add_system(handle_connection_events)
         .add_system(handle_messages);
+
+    app.insert_resource(DebugSessions::new());
 
     app.run();
 }
@@ -52,25 +57,20 @@ fn setup_networking(mut net: ResMut<NetworkServer>) {
     info!("Started listening for new connections!");
 }
 
-#[derive(Component)]
-struct DebugClient(ConnectionId);
-
 fn handle_connection_events(
     mut commands: Commands,
     _net: Res<NetworkServer>,
     mut network_events: EventReader<ServerNetworkEvent>,
+    mut sessions: ResMut<DebugSessions>,
 ) {
     // info!("handle_connection_events");
     for event in network_events.iter() {
         info!("got event");
         if let ServerNetworkEvent::Connected(conn_id) = event {
-            commands.spawn_bundle((DebugClient(*conn_id),));
+            let session = DebugSession::new(*conn_id);
+            sessions.insert(session);
 
-            // Broadcasting sends the message to all connected players! (Including the just connected one in this case)
-            // net.broadcast(shared::NewChatMessage {
-            //     name: String::from("SERVER"),
-            //     message: format!("New user connected; {}", conn_id),
-            // });
+            //TODO: send accept accepted to client
             info!("New client connected: {}", conn_id);
         }
     }
@@ -79,14 +79,20 @@ fn handle_connection_events(
 fn handle_messages(
     mut new_messages: EventReader<NetworkData<bevy_debug::ipc::DebugEntity>>,
     // net: Res<NetworkServer>,
+    mut sessions: ResMut<DebugSessions>,
 ) {
     for message in new_messages.iter() {
-        // let user = message.source();
-
         info!(
             "Received debug message from client: {}, {:?}",
             message.timestamp, message.entity_type
         );
+
+        let conn_id = message.source();
+        if let Some(session) = sessions.get_mut(&conn_id) {
+            let inner = message.deref();
+            session.history.push(inner.clone());
+            info!("{} entitiees", session.history.len());
+        }
     }
 }
 

@@ -3,7 +3,7 @@ use serde::*;
 
 use super::{DebugEntity, DebugEntityType};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ParryDebugEntityType {
     AABB { aabb: bounding_volume::AABB },
 }

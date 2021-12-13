@@ -7,12 +7,12 @@ use serde::*;
 
 use self::parry::ParryDebugEntityType;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum DebugEntityType {
     Parry(ParryDebugEntityType),
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct DebugEntity {
     pub timestamp: DateTime<Local>,
     pub entity_type: DebugEntityType,
