@@ -2,7 +2,7 @@ use bevy::{
     prelude::*,
     render::{
         mesh::{Indices, VertexAttributeValues},
-        pipeline::PrimitiveTopology,
+        render_resource::PrimitiveTopology,
     },
 };
 use parry3d::na::{Point3, Vector3};
@@ -10,8 +10,18 @@ use parry3d::na::{Point3, Vector3};
 pub mod parry;
 
 pub trait Spawnable {
-    fn spawn(&mut self, commands: &mut Commands, meshes: &mut Assets<Mesh>);
-    fn despawn(&mut self, commands: &mut Commands, meshes: &mut Assets<Mesh>);
+    fn spawn(
+        &mut self,
+        commands: &mut Commands,
+        meshes: &mut Assets<Mesh>,
+        materials: &mut Assets<StandardMaterial>,
+    );
+    fn despawn(
+        &mut self,
+        commands: &mut Commands,
+        meshes: &mut Assets<Mesh>,
+        materials: &mut Assets<StandardMaterial>,
+    );
 }
 
 pub trait MeshProvider {

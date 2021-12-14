@@ -104,12 +104,19 @@ fn handle_messages(
 /// set up a simple 3D scene
 fn setup(
     mut commands: Commands,
-    mut _meshes: ResMut<Assets<Mesh>>,
-    mut _materials: ResMut<Assets<StandardMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // camera
     commands.spawn_bundle(PerspectiveCameraBundle {
         transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        ..Default::default()
+    });
+
+    // plane
+    commands.spawn_bundle(PbrBundle {
+        mesh: meshes.add(Mesh::from(shape::Plane { size: 5.0 })),
+        // material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
         ..Default::default()
     });
 }
@@ -117,6 +124,7 @@ fn setup(
 fn render(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     mut sessions: ResMut<DebugSessions>,
 ) {
     //FIXME: allow multiple sessions
@@ -129,11 +137,12 @@ fn render(
                 match &mut v.entity_type {
                     ipc::DebugEntityType::Parry(ptype) => match ptype {
                         ipc::parry::ParryDebugEntityType::AABB { aabb } => {
-                            aabb.spawn(&mut commands, &mut *meshes);
+                            aabb.spawn(&mut commands, &mut *meshes, &mut *materials);
                         }
                     },
                 }
             }
+            session.history.clean();
         }
     }
 }
