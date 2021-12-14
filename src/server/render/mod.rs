@@ -2,7 +2,7 @@ use bevy::{
     prelude::*,
     render::{
         mesh::{Indices, VertexAttributeValues},
-        render_resource::PrimitiveTopology,
+        pipeline::PrimitiveTopology,
     },
 };
 use parry3d::na::{Point3, Vector3};

@@ -1,6 +1,11 @@
 use std::{net::SocketAddr, ops::Deref};
 
-use bevy::{diagnostic::LogDiagnosticsPlugin, prelude::*};
+use bevy::{
+    diagnostic::LogDiagnosticsPlugin,
+    prelude::*,
+    render::wireframe::WireframePlugin,
+    wgpu::{WgpuFeature, WgpuFeatures, WgpuOptions},
+};
 // {
 //     core::Time,
 //     diagnostic::LogDiagnosticsPlugin,
@@ -23,21 +28,31 @@ use bevy_debug::{
 use bevy_spicy_networking::*;
 
 fn main() {
-    let mut app = App::new();
+    let mut app = App::build();
 
-    app.add_plugins(DefaultPlugins)
+    app
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(LogDiagnosticsPlugin::default())
-        .add_startup_system(setup)
-        .add_system(movement)
-        .add_system(render)
-        .add_plugin(bevy_spicy_networking::ServerPlugin);
+        // .insert_resource(Msaa { samples: 4 })
+        .insert_resource(WgpuOptions {
+            features: WgpuFeatures {
+                // The Wireframe requires NonFillPolygonMode feature
+                features: vec![WgpuFeature::NonFillPolygonMode],
+            },
+            ..Default::default()
+        })
+        .add_plugins(DefaultPlugins)
+        .add_plugin(WireframePlugin)
+        .add_plugin(bevy_spicy_networking::ServerPlugin)
+        .add_startup_system(setup.system())
+        .add_system(movement.system())
+        .add_system(render.system());
 
     // Register parry server messages
     ipc::register_server_network_messages(&mut app);
-    app.add_startup_system(setup_networking)
-        .add_system(handle_connection_events)
-        .add_system(handle_messages);
+    app.add_startup_system(setup_networking.system())
+        .add_system(handle_connection_events.system())
+        .add_system(handle_messages.system());
 
     app.insert_resource(DebugSessions::new());
 
@@ -147,7 +162,7 @@ fn render(
     }
 }
 
-#[derive(Component)]
+// #[derive(Component)]
 struct Movable;
 
 fn movement(

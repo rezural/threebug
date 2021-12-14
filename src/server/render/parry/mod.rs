@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, render::wireframe::Wireframe};
 
 use super::{MeshProvider, Spawnable};
 use crate::ipc::parry::*;
@@ -14,9 +14,10 @@ impl Spawnable for AABB {
         let entity = commands
             .spawn_bundle(PbrBundle {
                 mesh,
-                material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+                material: materials.add(Color::rgba(0.3, 0.5, 0.3, 0.3).into()),
                 ..Default::default()
             })
+            .insert(Wireframe)
             .id();
         self.entity = Some(entity);
     }

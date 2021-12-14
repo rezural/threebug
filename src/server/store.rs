@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use bevy::prelude::Component;
+// use bevy::prelude::Component;
 use bevy_spicy_networking::ConnectionId;
 
 use super::history::History;
 
-#[derive(Component)]
+// #[derive(Component)]
 pub struct DebugSession {
     pub conn_id: ConnectionId,
     pub history: History,
