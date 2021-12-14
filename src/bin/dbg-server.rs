@@ -1,31 +1,36 @@
 use std::{net::SocketAddr, ops::Deref};
 
-use bevy::{
-    core::Time,
-    diagnostic::LogDiagnosticsPlugin,
-    ecs::prelude::*,
-    input::Input,
-    math::Vec3,
-    pbr2::StandardMaterial,
-    prelude::{error, info, App, Assets, KeyCode, Transform},
-    render2::{camera::PerspectiveCameraBundle, mesh::Mesh},
-    PipelinedDefaultPlugins,
-};
+use bevy::{diagnostic::LogDiagnosticsPlugin, prelude::*};
+// {
+//     core::Time,
+//     diagnostic::LogDiagnosticsPlugin,
+//     ecs::prelude::*,
+//     input::Input,
+//     math::Vec3,
+//     pbr2::StandardMaterial,
+//     prelude::{error, info, App, Assets, KeyCode, Transform},
+//     render2::{camera::PerspectiveCameraBundle, mesh::Mesh},
+//     PipelinedDefaultPlugins,
+// };
 
 use bevy_debug::{
     ipc,
-    server::store::{DebugSession, DebugSessions},
+    server::{
+        render::Spawnable,
+        store::{DebugSession, DebugSessions},
+    },
 };
 use bevy_spicy_networking::*;
 
 fn main() {
     let mut app = App::new();
 
-    app.add_plugins(PipelinedDefaultPlugins)
+    app.add_plugins(DefaultPlugins)
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_startup_system(setup)
         .add_system(movement)
+        .add_system(render)
         .add_plugin(bevy_spicy_networking::ServerPlugin);
 
     // Register parry server messages
@@ -107,6 +112,30 @@ fn setup(
         transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..Default::default()
     });
+}
+
+fn render(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut sessions: ResMut<DebugSessions>,
+) {
+    //FIXME: allow multiple sessions
+    if let Some(session) = sessions.first_mut() {
+        if session.history.is_dirty() {
+            info!("session dirty");
+            for v in session.history.dirty_entities() {
+                info!("spawning entity");
+
+                match &mut v.entity_type {
+                    ipc::DebugEntityType::Parry(ptype) => match ptype {
+                        ipc::parry::ParryDebugEntityType::AABB { aabb } => {
+                            aabb.spawn(&mut commands, &mut *meshes);
+                        }
+                    },
+                }
+            }
+        }
+    }
 }
 
 #[derive(Component)]

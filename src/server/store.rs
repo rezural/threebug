@@ -38,4 +38,14 @@ impl DebugSessions {
     pub fn get_mut(&mut self, conn_id: &ConnectionId) -> Option<&mut DebugSession> {
         self.sessions.get_mut(conn_id)
     }
+
+    pub fn first_mut(&mut self) -> Option<&mut DebugSession> {
+        let key = self.sessions.keys().last().cloned();
+        if let Some(k) = key {
+            if let Some(session) = self.sessions.get_mut(&k) {
+                return Some(session);
+            }
+        }
+        None
+    }
 }

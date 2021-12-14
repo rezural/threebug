@@ -23,7 +23,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     info!("connected");
 
-    for i in 1..10 {
+    for i in 1..3 {
         let i = i as f32;
         let neg = i * -1.0;
         let aabb =
