@@ -19,7 +19,7 @@ parry3d = { version = "0.7", features = ["serde-serialize"] }
 # tracing-subscriber = "0.2"
 
 # structopt = { version = "0.3", default-features = false }
-smooth-bevy-cameras = { git = "https://github.com/bonsairobo/smooth-bevy-cameras.git" }
+smooth-bevy-cameras = { git = "https://github.com/rezural/smooth-bevy-cameras.git", branch = "fps-3d-controller" }
 
 # [patch.crates-io]
 # bevy = { path = "vendor/bevy" }

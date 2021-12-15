@@ -21,7 +21,7 @@ use bevy::{
 
 use bevy_spicy_networking::*;
 use smooth_bevy_cameras::{
-    controllers::fps::{FpsCameraBundle, FpsCameraController, FpsCameraPlugin},
+    controllers::fps_3d::{Fps3dCameraBundle, Fps3dCameraController, Fps3dCameraPlugin},
     LookTransformPlugin,
 };
 
@@ -51,7 +51,7 @@ fn main() {
         .add_plugin(bevy_spicy_networking::ServerPlugin)
         // smooth bevy cameras
         .add_plugin(LookTransformPlugin)
-        .add_plugin(FpsCameraPlugin::default())
+        .add_plugin(Fps3dCameraPlugin::default())
         .add_startup_system(setup.system())
         .add_system(fps.system())
         .add_system(cursor_grab_system.system())
@@ -91,18 +91,17 @@ fn setup(
     mut commands: Commands,
     mut _meshes: ResMut<Assets<Mesh>>,
     mut _materials: ResMut<Assets<StandardMaterial>>,
-    mut controllers: Query<&mut FpsCameraController>,
+    mut controllers: Query<&mut Fps3dCameraController>,
 ) {
-    commands.spawn_bundle(FpsCameraBundle::new(
-        FpsCameraController::default(),
+    commands.spawn_bundle(Fps3dCameraBundle::new(
+        Fps3dCameraController {
+            enabled: false,
+            ..Default::default()
+        },
         PerspectiveCameraBundle::default(),
         Vec3::new(0.0, 0.0, 15.0),
         Vec3::new(0., 0., 0.),
     ));
-
-    if let Ok(mut controller) = controllers.single_mut() {
-        controller.enabled = false;
-    }
 }
 
 fn render(
@@ -174,18 +173,21 @@ fn cursor_grab_system(
     mut windows: ResMut<Windows>,
     btn: Res<Input<MouseButton>>,
     key: Res<Input<KeyCode>>,
-    mut controllers: Query<&mut FpsCameraController>,
+    mut controllers: Query<&mut Fps3dCameraController>,
 ) {
     let window = windows.get_primary_mut().unwrap();
 
     let mut controller = controllers.single_mut().unwrap();
     if btn.just_pressed(MouseButton::Left) {
+        info!("enabling fps 3d controller");
+
         controller.enabled = true;
         window.set_cursor_lock_mode(true);
         window.set_cursor_visibility(false);
     }
 
     if key.just_pressed(KeyCode::Escape) {
+        info!("disabling fps 3d controller");
         controller.enabled = false;
         window.set_cursor_lock_mode(false);
         window.set_cursor_visibility(true);
@@ -197,7 +199,7 @@ fn fps(
     _mouse: Res<Input<MouseButton>>,
     mut mouse_wheel_events: EventReader<MouseWheel>,
     _time: Res<Time>,
-    mut fps: Query<&mut FpsCameraController>,
+    mut fps: Query<&mut Fps3dCameraController>,
 ) {
     if let Ok(mut fps) = fps.single_mut() {
         for event in mouse_wheel_events.iter() {
