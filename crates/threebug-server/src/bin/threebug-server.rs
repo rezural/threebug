@@ -19,17 +19,16 @@ use bevy::{
 //     PipelinedDefaultPlugins,
 // };
 
-use bevy_debug::{
-    ipc,
-    server::{
-        render::Spawnable,
-        store::{DebugSession, DebugSessions},
-    },
-};
 use bevy_spicy_networking::*;
 use smooth_bevy_cameras::{
     controllers::fps::{FpsCameraBundle, FpsCameraController, FpsCameraPlugin},
     LookTransformPlugin,
+};
+
+use threebug_core::ipc::{self, DebugEntity};
+use threebug_server::{
+    render::Spawnable,
+    resource::store::{DebugSession, DebugSessions},
 };
 
 fn main() {
@@ -59,7 +58,7 @@ fn main() {
         .add_system(render.system());
 
     // Register parry server messages
-    ipc::register_server_network_messages(&mut app);
+    register_server_network_messages(&mut app);
     app.add_startup_system(setup_networking.system())
         .add_system(handle_connection_events.system())
         .add_system(handle_messages.system());
@@ -152,7 +151,7 @@ fn handle_connection_events(
 }
 
 fn handle_messages(
-    mut new_messages: EventReader<NetworkData<bevy_debug::ipc::DebugEntity>>,
+    mut new_messages: EventReader<NetworkData<threebug_core::ipc::DebugEntity>>,
     // net: Res<NetworkServer>,
     mut sessions: ResMut<DebugSessions>,
 ) {
@@ -219,4 +218,8 @@ fn fps(
             );
         }
     }
+}
+
+pub fn register_server_network_messages(app: &mut AppBuilder) {
+    app.listen_for_server_message::<DebugEntity>();
 }

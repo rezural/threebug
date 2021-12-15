@@ -1,7 +1,7 @@
 use bevy::{prelude::*, render::wireframe::Wireframe};
 
 use super::{MeshProvider, Spawnable};
-use crate::ipc::parry::*;
+use threebug_core::ipc::parry::*;
 
 impl Spawnable for AABB {
     fn spawn(
@@ -19,7 +19,7 @@ impl Spawnable for AABB {
             })
             .insert(Wireframe)
             .id();
-        self.entity = Some(entity);
+        self.entity = Some(entity.to_bits());
     }
 
     fn despawn(
@@ -29,7 +29,19 @@ impl Spawnable for AABB {
         _materials: &mut Assets<StandardMaterial>,
     ) {
         if let Some(entity) = self.entity {
-            commands.entity(entity).despawn_recursive();
+            commands
+                .entity(Entity::from_bits(entity))
+                .despawn_recursive();
         }
+    }
+}
+
+impl MeshProvider for AABB {
+    fn mesh(&self) -> Mesh {
+        let mins = self.aabb.mins;
+        let maxs = self.aabb.maxs;
+        let mins = Vec3::new(mins.x, mins.y, mins.z);
+        let maxs = Vec3::new(maxs.x, maxs.y, maxs.z);
+        bevy::prelude::shape::Box::from_min_max(mins, maxs).into()
     }
 }

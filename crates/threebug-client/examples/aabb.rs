@@ -1,11 +1,11 @@
 use core::time;
 use std::{error::Error, net::SocketAddr, thread};
 
-use bevy::prelude::{error, info};
 use bevy_spicy_networking::{NetworkSettings, StandaloneNetworkClient};
 use parry3d::na::Point3;
 use rand::Rng;
 use structopt::StructOpt;
+use tracing::{error, info};
 
 #[derive(Debug, StructOpt)]
 struct Options {
@@ -51,7 +51,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let aabb = parry3d::bounding_volume::AABB::new(mins, maxs);
 
-        let debug_entity_type = bevy_debug::ipc::parry::ParryDebugEntityType::new_aabb_entity(aabb);
+        let debug_entity_type =
+            threebug_core::ipc::parry::ParryDebugEntityType::new_aabb_entity(aabb);
 
         match client.send_message(debug_entity_type) {
             Ok(_) => info!("Sent aabb"),

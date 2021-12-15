@@ -291,23 +291,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_debug_server"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy_spicy_networking",
- "chrono",
- "parry3d",
- "rand",
- "serde",
- "smooth-bevy-cameras",
- "structopt",
- "tracing",
- "tracing-subscriber 0.2.25",
- "typetag",
-]
-
-[[package]]
 name = "bevy_derive"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -931,6 +914,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "client"
+version = "0.1.0"
+dependencies = [
+ "bevy_spicy_networking",
+ "parry3d",
+ "rand",
+ "structopt",
+ "threebug-core",
+ "tracing",
+ "tracing-subscriber 0.3.3",
+]
+
+[[package]]
 name = "cmake"
 version = "0.1.46"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1442,15 +1438,15 @@ checksum = "3dcaa9ae7725d12cdb85b3ad99a434db70b468c09ded17e012d86b5c1010f7a7"
 
 [[package]]
 name = "futures-core"
-version = "0.3.18"
+version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "629316e42fe7c2a0b9a65b47d159ceaa5453ab14e8f0a3c5eedbb8cd55b4a445"
+checksum = "88d1c26957f23603395cd326b0ffe64124b818f4449552f960d815cfba83a53d"
 
 [[package]]
 name = "futures-io"
-version = "0.3.18"
+version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e481354db6b5c353246ccf6a728b0c5511d752c08da7260546fc0933869daa11"
+checksum = "522de2a0fe3e380f1bc577ba0474108faf3f6b18321dbf60b3b9c39a75073377"
 
 [[package]]
 name = "futures-lite"
@@ -3402,6 +3398,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "threebug-core"
+version = "0.1.0"
+dependencies = [
+ "bevy_spicy_networking",
+ "chrono",
+ "parry3d",
+ "serde",
+ "typetag",
+]
+
+[[package]]
+name = "threebug-server"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_spicy_networking",
+ "parry3d",
+ "smooth-bevy-cameras",
+ "threebug-core",
+]
+
+[[package]]
 name = "thunderdome"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3523,9 +3541,12 @@ version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "245da694cc7fc4729f3f418b304cb57789f1bed2a78c575407ab8a23f53cb4d3"
 dependencies = [
+ "ansi_term",
  "sharded-slab",
+ "smallvec",
  "thread_local",
  "tracing-core",
+ "tracing-log",
 ]
 
 [[package]]

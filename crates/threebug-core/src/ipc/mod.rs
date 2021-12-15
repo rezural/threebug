@@ -1,6 +1,5 @@
 pub mod parry;
 
-use bevy::prelude::*;
 use bevy_spicy_networking::*;
 use chrono::{DateTime, Local};
 use serde::*;
@@ -33,8 +32,4 @@ impl NetworkMessage for DebugEntity {}
 
 impl ServerMessage for DebugEntity {
     const NAME: &'static str = "bevy_debug::ipc::DebugEntity";
-}
-
-pub fn register_server_network_messages(app: &mut AppBuilder) {
-    app.listen_for_server_message::<DebugEntity>();
 }

@@ -1,6 +1,6 @@
 use std::slice::IterMut;
 
-use crate::ipc::DebugEntity;
+use threebug_core::ipc::DebugEntity;
 
 pub struct History {
     history: Vec<DebugEntity>,
@@ -54,7 +54,7 @@ impl Default for History {
 mod tests {
     use parry3d::bounding_volume::AABB;
 
-    use crate::ipc::parry::ParryDebugEntityType;
+    use threebug_core::ipc::parry::ParryDebugEntityType;
 
     use super::*;
 

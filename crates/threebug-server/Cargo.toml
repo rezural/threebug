@@ -1,0 +1,29 @@
+[package]
+name = "threebug-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = { version = "0.5.0" }
+# bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
+# bevy = { path = "vendor/bevy" }
+
+threebug-core = { path = "../threebug-core" }
+
+bevy_spicy_networking = { git = "https://github.com/rezural/bevy_spicy_networking", branch = "standalone-network-client-0.5" }
+# bevy_spicy_networking = { path = "vendor/bevy_spicy_networking" }
+
+parry3d = { version = "0.7", features = ["serde-serialize"] }
+
+# tracing = "0.1"
+# tracing-subscriber = "0.2"
+
+# structopt = { version = "0.3", default-features = false }
+smooth-bevy-cameras = { git = "https://github.com/bonsairobo/smooth-bevy-cameras.git" }
+
+# [patch.crates-io]
+# bevy = { path = "vendor/bevy" }
+# bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
+
+# [patch."https://github.com/bevyengine/bevy"]
+# bevy = { path = "vendor/bevy" }
