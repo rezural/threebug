@@ -2,6 +2,7 @@ use std::{net::SocketAddr, ops::Deref};
 
 use bevy::{
     diagnostic::LogDiagnosticsPlugin,
+    input::mouse::MouseWheel,
     prelude::*,
     render::wireframe::WireframePlugin,
     wgpu::{WgpuFeature, WgpuFeatures, WgpuOptions},
@@ -53,7 +54,8 @@ fn main() {
         .add_plugin(LookTransformPlugin)
         .add_plugin(FpsCameraPlugin::default())
         .add_startup_system(setup.system())
-        // .add_system(movement.system())
+        .add_system(fps.system())
+        .add_system(cursor_grab_system.system())
         .add_system(render.system());
 
     // Register parry server messages
@@ -90,6 +92,7 @@ fn setup(
     mut commands: Commands,
     mut _meshes: ResMut<Assets<Mesh>>,
     mut _materials: ResMut<Assets<StandardMaterial>>,
+    mut controllers: Query<&mut FpsCameraController>,
 ) {
     commands.spawn_bundle(FpsCameraBundle::new(
         FpsCameraController::default(),
@@ -97,6 +100,10 @@ fn setup(
         Vec3::new(0.0, 0.0, 15.0),
         Vec3::new(0., 0., 0.),
     ));
+
+    if let Ok(mut controller) = controllers.single_mut() {
+        controller.enabled = false;
+    }
 }
 
 fn render(
@@ -163,7 +170,52 @@ fn handle_messages(
         }
     }
 }
-// #[derive(Component)]
-struct Movable;
 
-fn movement(input: Res<Input<KeyCode>>, time: Res<Time>, mut query: Query<&mut Transform>) {}
+fn cursor_grab_system(
+    mut windows: ResMut<Windows>,
+    btn: Res<Input<MouseButton>>,
+    key: Res<Input<KeyCode>>,
+    mut controllers: Query<&mut FpsCameraController>,
+) {
+    let window = windows.get_primary_mut().unwrap();
+
+    let mut controller = controllers.single_mut().unwrap();
+    if btn.just_pressed(MouseButton::Left) {
+        controller.enabled = true;
+        window.set_cursor_lock_mode(true);
+        window.set_cursor_visibility(false);
+    }
+
+    if key.just_pressed(KeyCode::Escape) {
+        controller.enabled = false;
+        window.set_cursor_lock_mode(false);
+        window.set_cursor_visibility(true);
+    }
+}
+
+fn fps(
+    _keyboard: Res<Input<KeyCode>>,
+    _mouse: Res<Input<MouseButton>>,
+    mut mouse_wheel_events: EventReader<MouseWheel>,
+    _time: Res<Time>,
+    mut fps: Query<&mut FpsCameraController>,
+) {
+    if let Ok(mut fps) = fps.single_mut() {
+        for event in mouse_wheel_events.iter() {
+            let delta = if fps.translate_sensitivity <= 0.2 {
+                0.01
+            } else if fps.translate_sensitivity <= 1.0 {
+                0.1
+            } else {
+                0.3
+            };
+            let delta = event.y * delta;
+            fps.translate_sensitivity += delta;
+            fps.translate_sensitivity = fps.translate_sensitivity.clamp(0.01, 10.0);
+            info!(
+                "Changing translate sensitivity by {} to {}",
+                delta, fps.translate_sensitivity
+            );
+        }
+    }
+}
