@@ -52,9 +52,9 @@ Client:
 [ ] Static initialization of network client, similar to tracing
 
 Server:
-[ ] WASD
 [ ] Per client History
-[ ] Actually display objects in 3d (currently only logging in server)
+[*] WASD
+[*] Actually display objects in 3d (currently only logging in server)
 
 Other
 [ ] 2d debugging, probably just display on plane in 3d

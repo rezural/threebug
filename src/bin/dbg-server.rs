@@ -202,6 +202,7 @@ fn fps(
 ) {
     if let Ok(mut fps) = fps.single_mut() {
         for event in mouse_wheel_events.iter() {
+            //FIXME: move this into some kind of easing function thingy
             let delta = if fps.translate_sensitivity <= 0.2 {
                 0.01
             } else if fps.translate_sensitivity <= 1.0 {
