@@ -3,10 +3,25 @@ use std::{error::Error, net::SocketAddr, thread};
 
 use bevy::prelude::{error, info};
 use bevy_spicy_networking::{NetworkSettings, StandaloneNetworkClient};
-use parry3d::math::Point;
+use parry3d::{math::Point, na::Point3};
+use rand::Rng;
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+struct Options {
+    #[structopt(short, long, default_value = "10")]
+    count: usize,
+    #[structopt(short, long, default_value = "10")]
+    volume_radius: f32,
+    #[structopt(short, long, default_value = "0.5")]
+    aabb_radius: f32,
+}
 
 fn main() -> Result<(), Box<dyn Error>> {
     tracing_subscriber::fmt::init();
+
+    let opt = Options::from_args();
+
     let mut client = StandaloneNetworkClient::new();
     let ip_address = "127.0.0.1".parse().unwrap();
 
@@ -21,19 +36,24 @@ fn main() -> Result<(), Box<dyn Error>> {
         },
     )?;
 
-    info!("connected");
+    info!("Connected");
 
-    for i in 1..3 {
-        let i = i as f32;
-        let neg = i * -1.0;
-        let aabb =
-            parry3d::bounding_volume::AABB::new(Point::new(neg, neg, neg), Point::new(i, i, i));
+    let mut rng = rand::thread_rng();
+
+    for _ in 0..opt.count {
+        let vrange = -opt.volume_radius..opt.volume_radius;
+        let centre = Point3::origin().map(|_: f32| rng.gen_range(vrange.clone()));
+
+        let mins = centre.map(|c| c - opt.aabb_radius);
+        let maxs = centre.map(|c| c + opt.aabb_radius);
+
+        let aabb = parry3d::bounding_volume::AABB::new(mins, maxs);
 
         let debug_entity_type =
             bevy_debug::ipc::parry::ParryDebugEntityType::new_aabb_entity(aabb.into());
 
         match client.send_message(debug_entity_type) {
-            Ok(_) => info!("sent aabb"),
+            Ok(_) => info!("Sent aabb"),
             Err(e) => error!("Couldnt send aabb to server: {:?}", e),
         }
         thread::sleep(time::Duration::from_millis(1000));
