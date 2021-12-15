@@ -78,7 +78,7 @@ fn setup_networking(mut net: ResMut<NetworkServer>) {
 }
 
 fn handle_connection_events(
-    mut commands: Commands,
+    mut _commands: Commands,
     _net: Res<NetworkServer>,
     mut network_events: EventReader<ServerNetworkEvent>,
     mut sessions: ResMut<DebugSessions>,
@@ -119,12 +119,12 @@ fn handle_messages(
 /// set up a simple 3D scene
 fn setup(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut _meshes: ResMut<Assets<Mesh>>,
+    mut _materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // camera
     commands.spawn_bundle(PerspectiveCameraBundle {
-        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(0., 0., 15.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..Default::default()
     });
 }

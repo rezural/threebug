@@ -49,3 +49,9 @@ impl DebugSessions {
         None
     }
 }
+
+impl Default for DebugSessions {
+    fn default() -> Self {
+        Self::new()
+    }
+}

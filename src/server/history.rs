@@ -1,4 +1,4 @@
-use std::slice::Iter;
+use std::slice::IterMut;
 
 use crate::ipc::DebugEntity;
 
@@ -22,6 +22,10 @@ impl History {
         self.history.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.history.is_empty()
+    }
+
     pub fn clean(&mut self) {
         self.dirty = false;
         self.prev_clean = self.len();
@@ -31,7 +35,7 @@ impl History {
         self.dirty
     }
 
-    pub fn dirty_entities(&mut self) -> std::slice::IterMut<'_, DebugEntity> {
+    pub fn dirty_entities(&mut self) -> IterMut<'_, DebugEntity> {
         self.history[self.prev_clean..].iter_mut()
     }
 }
@@ -76,7 +80,7 @@ mod tests {
         assert!(history.is_dirty());
         assert_eq!(history.dirty_entities().len(), 1);
 
-        history.push(entity.clone());
+        history.push(entity);
         assert_eq!(history.dirty_entities().len(), 2);
     }
 }
