@@ -15,6 +15,8 @@ struct Options {
     volume_radius: f32,
     #[structopt(short, long, default_value = "0.5")]
     aabb_radius: f32,
+    #[structopt(short, long, default_value = "0.5")]
+    wait: f32,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -55,7 +57,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Ok(_) => info!("Sent aabb"),
             Err(e) => error!("Couldnt send aabb to server: {:?}", e),
         }
-        thread::sleep(time::Duration::from_millis(1000));
+        thread::sleep(time::Duration::from_secs_f32(opt.wait));
     }
 
     client.disconnect();
