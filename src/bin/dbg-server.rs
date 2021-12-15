@@ -26,6 +26,10 @@ use bevy_debug::{
     },
 };
 use bevy_spicy_networking::*;
+use smooth_bevy_cameras::{
+    controllers::fps::{FpsCameraBundle, FpsCameraController, FpsCameraPlugin},
+    LookTransformPlugin,
+};
 
 fn main() {
     let mut app = App::build();
@@ -43,9 +47,13 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(WireframePlugin)
+        // bevy spicy networking
         .add_plugin(bevy_spicy_networking::ServerPlugin)
+        // smooth bevy cameras
+        .add_plugin(LookTransformPlugin)
+        .add_plugin(FpsCameraPlugin::default())
         .add_startup_system(setup.system())
-        .add_system(movement.system())
+        // .add_system(movement.system())
         .add_system(render.system());
 
     // Register parry server messages
@@ -75,6 +83,46 @@ fn setup_networking(mut net: ResMut<NetworkServer>) {
     }
 
     info!("Started listening for new connections!");
+}
+
+/// set up a simple 3D scene
+fn setup(
+    mut commands: Commands,
+    mut _meshes: ResMut<Assets<Mesh>>,
+    mut _materials: ResMut<Assets<StandardMaterial>>,
+) {
+    commands.spawn_bundle(FpsCameraBundle::new(
+        FpsCameraController::default(),
+        PerspectiveCameraBundle::default(),
+        Vec3::new(0.0, 0.0, 15.0),
+        Vec3::new(0., 0., 0.),
+    ));
+}
+
+fn render(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut sessions: ResMut<DebugSessions>,
+) {
+    //FIXME: allow multiple sessions
+    if let Some(session) = sessions.first_mut() {
+        if session.history.is_dirty() {
+            info!("session dirty");
+            for v in session.history.dirty_entities() {
+                info!("spawning entity");
+
+                match &mut v.entity_type {
+                    ipc::DebugEntityType::Parry(ptype) => match ptype {
+                        ipc::parry::ParryDebugEntityType::AABB { aabb } => {
+                            aabb.spawn(&mut commands, &mut *meshes, &mut *materials);
+                        }
+                    },
+                }
+            }
+            session.history.clean();
+        }
+    }
 }
 
 fn handle_connection_events(
@@ -115,69 +163,7 @@ fn handle_messages(
         }
     }
 }
-
-/// set up a simple 3D scene
-fn setup(
-    mut commands: Commands,
-    mut _meshes: ResMut<Assets<Mesh>>,
-    mut _materials: ResMut<Assets<StandardMaterial>>,
-) {
-    // camera
-    commands.spawn_bundle(PerspectiveCameraBundle {
-        transform: Transform::from_xyz(0., 0., 15.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..Default::default()
-    });
-}
-
-fn render(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut sessions: ResMut<DebugSessions>,
-) {
-    //FIXME: allow multiple sessions
-    if let Some(session) = sessions.first_mut() {
-        if session.history.is_dirty() {
-            info!("session dirty");
-            for v in session.history.dirty_entities() {
-                info!("spawning entity");
-
-                match &mut v.entity_type {
-                    ipc::DebugEntityType::Parry(ptype) => match ptype {
-                        ipc::parry::ParryDebugEntityType::AABB { aabb } => {
-                            aabb.spawn(&mut commands, &mut *meshes, &mut *materials);
-                        }
-                    },
-                }
-            }
-            session.history.clean();
-        }
-    }
-}
-
 // #[derive(Component)]
 struct Movable;
 
-fn movement(
-    input: Res<Input<KeyCode>>,
-    time: Res<Time>,
-    mut query: Query<&mut Transform, With<Movable>>,
-) {
-    for mut transform in query.iter_mut() {
-        let mut direction = Vec3::ZERO;
-        if input.pressed(KeyCode::Up) {
-            direction.y += 1.0;
-        }
-        if input.pressed(KeyCode::Down) {
-            direction.y -= 1.0;
-        }
-        if input.pressed(KeyCode::Left) {
-            direction.x -= 1.0;
-        }
-        if input.pressed(KeyCode::Right) {
-            direction.x += 1.0;
-        }
-
-        transform.translation += time.delta_seconds() * 2.0 * direction;
-    }
-}
+fn movement(input: Res<Input<KeyCode>>, time: Res<Time>, mut query: Query<&mut Transform>) {}

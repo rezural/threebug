@@ -25,6 +25,7 @@ tracing-subscriber = "0.2"
 
 structopt = { version = "0.3", default-features = false }
 rand = "0.8"
+smooth-bevy-cameras = { git = "https://github.com/bonsairobo/smooth-bevy-cameras.git" }
 
 # [patch.crates-io]
 # bevy = { path = "vendor/bevy" }
