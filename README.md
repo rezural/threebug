@@ -1,14 +1,8 @@
-# Bevy Debug Server
-
-WIP, pre-alpha!
-
-Bevy Debug Server is probably not going to be it's future name.
+# Threebug
 
 This aims to be a visual debugging aid for 3d programs (currently only rust, bevy, nalgebra, parry). 
 
 This is intended mainly for debugging 3d algorithms, that don't yet exist within a 3d environment. Usage should be as trivial as using tracing.rs, or rust's logging interfaces.
-
-Currently setting up a 3d environment takes about half a day or so, and comes with alot of choices WRT camera mode, plugins etc.
 
 ## Planned Features
 
