@@ -933,19 +933,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "client"
-version = "0.1.0"
-dependencies = [
- "bevy_spicy_networking",
- "parry3d",
- "rand",
- "structopt",
- "threebug-core",
- "tracing",
- "tracing-subscriber 0.3.3",
-]
-
-[[package]]
 name = "clipboard"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3492,6 +3479,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8018d24e04c95ac8790716a5987d0fec4f8b27249ffa0f7d33f1369bdfb88cbd"
 dependencies = [
  "once_cell",
+]
+
+[[package]]
+name = "threebug-client"
+version = "0.1.0"
+dependencies = [
+ "bevy_spicy_networking",
+ "parry3d",
+ "rand",
+ "structopt",
+ "threebug-core",
+ "tracing",
+ "tracing-subscriber 0.3.3",
 ]
 
 [[package]]
