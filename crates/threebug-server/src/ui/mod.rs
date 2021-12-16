@@ -20,16 +20,18 @@ pub mod debug_sessions {
     pub fn sessions(ctx: &mut EguiContext, sessions: &mut Sessions) {
         egui::Window::new("Sessions").show(ctx.ctx(), |ui| {
             let session_ids = sessions.session_ids();
-            ComboBox::from_label("Choose Session").show_ui(ui, |ui| {
-                if let Some(current) = sessions.current_session_id_mut() {
-                    info!("current_session: {}", current);
-                    for session in session_ids {
-                        info!("session: {}", session);
-                        ui.selectable_value(current, session.clone(), session);
-                        // ui.selectable_label(current, session.clone(), session);
-                    }
-                }
-            })
+            if let Some(current) = sessions.current_session_id_mut() {
+                ComboBox::from_label("Choose Session")
+                    .selected_text(current.clone())
+                    .show_ui(ui, |ui| {
+                        info!("current_session: {}", current);
+                        for session in session_ids {
+                            info!("session: {}", session);
+                            ui.selectable_value(current, session.clone(), session);
+                            // ui.selectable_label(current, session.clone(), session);
+                        }
+                    });
+            }
         });
     }
 }
