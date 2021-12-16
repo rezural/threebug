@@ -10,3 +10,11 @@ members = [
 [patch."https://github.com/rezural/bevy_spicy_networking"]
 bevy_spicy_networking = { path = "vendor/bevy_spicy_networking" }
 
+[patch.crates-io]
+# egui = { path = "vendor/egui/egui" }
+
+# bevy = { path = "vendor/bevy" }
+# bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
+
+# [patch."https://github.com/bevyengine/bevy"]
+# bevy = { path = "vendor/bevy" }
