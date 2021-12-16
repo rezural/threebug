@@ -3,7 +3,7 @@ use std::slice::IterMut;
 use threebug_core::ipc::DebugEntity;
 
 pub struct History {
-    history: Vec<DebugEntity>,
+    pub history: Vec<DebugEntity>,
     dirty: bool,
     prev_clean: usize,
 }

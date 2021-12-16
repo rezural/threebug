@@ -27,7 +27,10 @@ use smooth_bevy_cameras::{
 };
 
 use threebug_core::ipc::DebugEntity;
-use threebug_server::resource::session::{Session, SessionRenderState, Sessions};
+use threebug_server::{
+    resource::session::{Session, Sessions},
+    ui::{session::SessionItemState, sessions::SessionsState},
+};
 
 use threebug_server::ui;
 
@@ -67,7 +70,7 @@ fn main() {
         .add_system(handle_messages.system());
 
     app.insert_resource(Sessions::new());
-    app.insert_resource(SessionRenderState::new());
+    app.insert_resource(SessionsState::new());
 
     app.run();
 }
@@ -112,7 +115,7 @@ fn render(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut sessions: ResMut<Sessions>,
-    mut session_render_state: ResMut<SessionRenderState>,
+    mut session_render_state: ResMut<SessionsState>,
 ) {
     if session_render_state.is_current(&*sessions) {
         // FIXME: check if we need to update
@@ -172,6 +175,7 @@ fn handle_messages(
     mut new_messages: EventReader<NetworkData<threebug_core::ipc::DebugEntity>>,
     // net: Res<NetworkServer>,
     mut sessions: ResMut<Sessions>,
+    mut session_render_state: ResMut<SessionsState>,
 ) {
     for message in new_messages.iter() {
         info!(
@@ -179,10 +183,19 @@ fn handle_messages(
             message.timestamp, message.entity_type
         );
 
-        let conn_id = message.source();
-        if let Some(session) = sessions.get_mut(&conn_id.uuid().to_string()) {
+        let session_id = &message.source().uuid().to_string();
+        if let Some(session) = sessions.get_mut(session_id) {
             let inner = message.deref();
+
             session.history.push(inner.clone());
+            if let Some(session_state) = session_render_state.get_mut(session_id) {
+                let entity = session.history.history.last().unwrap();
+                let item = SessionItemState {
+                    entity: entity.into(),
+                    visible: true,
+                };
+                session_state.state.push(item);
+            }
             info!("{} entitiees", session.history.len());
         }
     }

@@ -1,4 +1,3 @@
-use bevy::prelude::{info, Assets, Commands, Mesh, StandardMaterial};
 // use bevy::prelude::Component;
 use bevy_spicy_networking::ConnectionId;
 use indexmap::IndexMap;
@@ -6,62 +5,6 @@ use indexmap::IndexMap;
 use crate::render::Spawnable;
 
 use super::history::History;
-
-#[derive(Default)]
-pub struct SessionRenderState {
-    current_session_id: Option<String>,
-}
-
-impl SessionRenderState {
-    /// Create a new, default RenderSessionState
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Is this session the session we want to be rendering?
-    pub fn is_current(&self, sessions: &Sessions) -> bool {
-        sessions.current_session_id() == self.current_session_id
-    }
-
-    /// Set the current session
-    pub fn update_current_session(&mut self, sessions: &Sessions) {
-        if let Some(current_session) = sessions.current_session() {
-            self.current_session_id = Some(current_session.id());
-        } else {
-            self.current_session_id = None;
-        }
-    }
-
-    pub fn despawn_current_session(
-        &self,
-        sessions: &mut Sessions,
-        commands: &mut Commands,
-        meshes: &mut Assets<Mesh>,
-        materials: &mut Assets<StandardMaterial>,
-    ) {
-        if let Some(current_session_id) = &self.current_session_id {
-            info!("Despawning session: {}", current_session_id);
-            if let Some(session) = sessions.get_mut(current_session_id) {
-                session.despawn(commands, meshes, materials)
-            }
-        }
-    }
-
-    pub fn spawn_current_session(
-        &self,
-        sessions: &mut Sessions,
-        commands: &mut Commands,
-        meshes: &mut Assets<Mesh>,
-        materials: &mut Assets<StandardMaterial>,
-    ) {
-        if let Some(current_session_id) = &self.current_session_id {
-            info!("Spawning session: {}", current_session_id);
-            if let Some(session) = sessions.get_mut(current_session_id) {
-                session.spawn(commands, meshes, materials)
-            }
-        }
-    }
-}
 
 // #[derive(Component)]
 pub struct Session {
@@ -135,6 +78,10 @@ impl Sessions {
             self.set_current_session(&session);
         }
         self.sessions.insert(session.id(), session)
+    }
+
+    pub fn keys(&self) -> impl Iterator<Item = &String> {
+        self.sessions.keys()
     }
 
     pub fn get_mut(&mut self, session_id: &str) -> Option<&mut Session> {

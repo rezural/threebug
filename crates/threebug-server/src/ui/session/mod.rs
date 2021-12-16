@@ -9,8 +9,8 @@ use crate::resource::session::Session;
 
 #[derive(Default)]
 pub struct SessionState {
-    state: Vec<SessionItemState>,
-    selected: Vec<usize>,
+    pub state: Vec<SessionItemState>,
+    // selected: Vec<usize>,
 }
 
 impl SessionState {
@@ -27,6 +27,10 @@ impl SessionState {
                 visible: true,
             })
             .collect()
+    }
+
+    pub fn state_iter_mut(&mut self) -> impl Iterator<Item = &mut SessionItemState> {
+        self.state.iter_mut()
     }
 }
 
