@@ -1,7 +1,7 @@
 use std::{net::SocketAddr, ops::Deref};
 
 use bevy::{
-    diagnostic::LogDiagnosticsPlugin,
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     input::mouse::MouseWheel,
     prelude::*,
     render::wireframe::WireframePlugin,
@@ -19,7 +19,7 @@ use bevy::{
 //     PipelinedDefaultPlugins,
 // };
 
-use bevy_egui::EguiPlugin;
+use bevy_egui::{EguiContext, EguiPlugin};
 use bevy_spicy_networking::*;
 use smooth_bevy_cameras::{
     controllers::fps_3d::{Fps3dCameraBundle, Fps3dCameraController, Fps3dCameraPlugin},
@@ -34,8 +34,7 @@ use threebug_server::ui;
 fn main() {
     let mut app = App::build();
 
-    app
-        // .add_plugin(FrameTimeDiagnosticsPlugin::default())
+    app.add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(LogDiagnosticsPlugin::default())
         // .insert_resource(Msaa { samples: 4 })
         .insert_resource(WgpuOptions {
@@ -58,6 +57,7 @@ fn main() {
         .add_startup_system(setup.system())
         .add_system(fps.system())
         .add_system(cursor_grab_system.system())
+        .add_system(egui_focus.system())
         .add_system(render.system());
 
     // Register parry server messages
@@ -193,7 +193,11 @@ fn cursor_grab_system(
     btn: Res<Input<MouseButton>>,
     key: Res<Input<KeyCode>>,
     mut controllers: Query<&mut Fps3dCameraController>,
+    ui_context: Res<EguiContext>,
 ) {
+    if ui_context.ctx().wants_pointer_input() {
+        return;
+    }
     let window = windows.get_primary_mut().unwrap();
 
     let mut controller = controllers.single_mut().unwrap();
@@ -237,6 +241,15 @@ fn fps(
                 "Changing translate sensitivity by {} to {}",
                 delta, fps.translate_sensitivity
             );
+        }
+    }
+}
+
+fn egui_focus(ui_context: Res<EguiContext>, mut controllers: Query<&mut Fps3dCameraController>) {
+    let enabled = !ui_context.ctx().wants_pointer_input();
+    for mut controller in controllers.iter_mut() {
+        if controller.enabled {
+            controller.enabled = enabled;
         }
     }
 }
