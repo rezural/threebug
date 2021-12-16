@@ -38,6 +38,10 @@ impl History {
     pub fn dirty_entities(&mut self) -> IterMut<'_, DebugEntity> {
         self.history[self.prev_clean..].iter_mut()
     }
+
+    pub fn entities_mut(&mut self) -> impl Iterator<Item = &mut DebugEntity> {
+        self.history.iter_mut()
+    }
 }
 
 impl Default for History {

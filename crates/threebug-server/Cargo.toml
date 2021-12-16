@@ -11,7 +11,7 @@ bevy = { version = "0.5.0" }
 threebug-core = { path = "../threebug-core" }
 
 bevy_spicy_networking = { git = "https://github.com/rezural/bevy_spicy_networking", branch = "standalone-network-client-0.5" }
-# bevy_spicy_networking = { path = "vendor/bevy_spicy_networking" }
+# bevy_spicy_networking = { path = "../../vendor/bevy_spicy_networking" }
 
 parry3d = { version = "0.7", features = ["serde-serialize"] }
 
@@ -20,6 +20,8 @@ parry3d = { version = "0.7", features = ["serde-serialize"] }
 
 # structopt = { version = "0.3", default-features = false }
 smooth-bevy-cameras = { git = "https://github.com/rezural/smooth-bevy-cameras.git", branch = "fps-3d-controller" }
+bevy_egui = "0.8.0"
+indexmap = "1.7.0"
 
 # [patch.crates-io]
 # bevy = { path = "vendor/bevy" }

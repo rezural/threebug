@@ -3,6 +3,30 @@ use bevy::{prelude::*, render::wireframe::Wireframe};
 use super::{MeshProvider, Spawnable};
 use threebug_core::ipc::parry::*;
 
+impl Spawnable for ParryDebugEntityType {
+    fn spawn(
+        &mut self,
+        commands: &mut Commands,
+        meshes: &mut Assets<Mesh>,
+        materials: &mut Assets<StandardMaterial>,
+    ) {
+        match self {
+            ParryDebugEntityType::AABB { aabb } => aabb.spawn(commands, meshes, materials),
+        }
+    }
+
+    fn despawn(
+        &mut self,
+        commands: &mut Commands,
+        meshes: &mut Assets<Mesh>,
+        materials: &mut Assets<StandardMaterial>,
+    ) {
+        match self {
+            ParryDebugEntityType::AABB { aabb } => aabb.despawn(commands, meshes, materials),
+        }
+    }
+}
+
 impl Spawnable for AABB {
     fn spawn(
         &mut self,

@@ -5,3 +5,8 @@ members = [
     "crates/threebug-server",
     "crates/threebug-client",
 ]
+
+
+[patch."https://github.com/rezural/bevy_spicy_networking"]
+bevy_spicy_networking = { path = "vendor/bevy_spicy_networking" }
+

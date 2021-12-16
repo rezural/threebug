@@ -6,6 +6,7 @@ use bevy::{
     },
 };
 use parry3d::na::{Point3, Vector3};
+use threebug_core::ipc::{DebugEntity, DebugEntityType};
 
 pub mod parry;
 
@@ -26,6 +27,50 @@ pub trait Spawnable {
 
 pub trait MeshProvider {
     fn mesh(&self) -> Mesh;
+}
+
+impl Spawnable for DebugEntity {
+    fn spawn(
+        &mut self,
+        commands: &mut Commands,
+        meshes: &mut Assets<Mesh>,
+        materials: &mut Assets<StandardMaterial>,
+    ) {
+        self.entity_type.spawn(commands, meshes, materials);
+    }
+
+    fn despawn(
+        &mut self,
+        commands: &mut Commands,
+        meshes: &mut Assets<Mesh>,
+        materials: &mut Assets<StandardMaterial>,
+    ) {
+        self.entity_type.despawn(commands, meshes, materials);
+    }
+}
+
+impl Spawnable for DebugEntityType {
+    fn spawn(
+        &mut self,
+        commands: &mut Commands,
+        meshes: &mut Assets<Mesh>,
+        materials: &mut Assets<StandardMaterial>,
+    ) {
+        match self {
+            DebugEntityType::Parry(entity) => entity.spawn(commands, meshes, materials),
+        }
+    }
+
+    fn despawn(
+        &mut self,
+        commands: &mut Commands,
+        meshes: &mut Assets<Mesh>,
+        materials: &mut Assets<StandardMaterial>,
+    ) {
+        match self {
+            DebugEntityType::Parry(entity) => entity.despawn(commands, meshes, materials),
+        }
+    }
 }
 
 /// cadged from https://github.com/dimforge/rapier/blob/0bb2f08deafe69afcb514728b584c590b3559fd2/src_testbed%2Fobjects%2Fnode.rs#L280

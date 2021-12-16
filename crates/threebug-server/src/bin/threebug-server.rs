@@ -19,17 +19,17 @@ use bevy::{
 //     PipelinedDefaultPlugins,
 // };
 
+use bevy_egui::EguiPlugin;
 use bevy_spicy_networking::*;
 use smooth_bevy_cameras::{
     controllers::fps_3d::{Fps3dCameraBundle, Fps3dCameraController, Fps3dCameraPlugin},
     LookTransformPlugin,
 };
 
-use threebug_core::ipc::{self, DebugEntity};
-use threebug_server::{
-    render::Spawnable,
-    resource::store::{DebugSession, DebugSessions},
-};
+use threebug_core::ipc::DebugEntity;
+use threebug_server::resource::session::{Session, SessionRenderState, Sessions};
+
+use threebug_server::ui;
 
 fn main() {
     let mut app = App::build();
@@ -52,6 +52,9 @@ fn main() {
         // smooth bevy cameras
         .add_plugin(LookTransformPlugin)
         .add_plugin(Fps3dCameraPlugin::default())
+        // bevy egui
+        .add_plugin(EguiPlugin)
+        .add_system(ui::ui.system())
         .add_startup_system(setup.system())
         .add_system(fps.system())
         .add_system(cursor_grab_system.system())
@@ -63,7 +66,8 @@ fn main() {
         .add_system(handle_connection_events.system())
         .add_system(handle_messages.system());
 
-    app.insert_resource(DebugSessions::new());
+    app.insert_resource(Sessions::new());
+    app.insert_resource(SessionRenderState::new());
 
     app.run();
 }
@@ -107,25 +111,41 @@ fn render(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut sessions: ResMut<DebugSessions>,
+    mut sessions: ResMut<Sessions>,
+    mut session_render_state: ResMut<SessionRenderState>,
 ) {
-    //FIXME: allow multiple sessions
-    if let Some(session) = sessions.first_mut() {
-        if session.history.is_dirty() {
-            info!("session dirty");
-            for v in session.history.dirty_entities() {
-                info!("spawning entity");
+    if session_render_state.is_current(&*sessions) {
+        // FIXME: check if we need to update
+        // if session.history.is_dirty() {
+        //     info!("session dirty");
+        //     for v in session.history.dirty_entities() {
+        //         info!("spawning entity");
 
-                match &mut v.entity_type {
-                    ipc::DebugEntityType::Parry(ptype) => match ptype {
-                        ipc::parry::ParryDebugEntityType::AABB { aabb } => {
-                            aabb.spawn(&mut commands, &mut *meshes, &mut *materials);
-                        }
-                    },
-                }
-            }
-            session.history.clean();
-        }
+        //         match &mut v.entity_type {
+        //             ipc::DebugEntityType::Parry(ptype) => match ptype {
+        //                 ipc::parry::ParryDebugEntityType::AABB { aabb } => {
+        //                     aabb.spawn(&mut commands, &mut *meshes, &mut *materials);
+        //                 }
+        //             },
+        //         }
+        //     }
+        //     session.history.clean();
+        // }
+    } else {
+        session_render_state.despawn_current_session(
+            &mut *sessions,
+            &mut commands,
+            &mut *meshes,
+            &mut *materials,
+        );
+        session_render_state.update_current_session(&*sessions);
+
+        session_render_state.spawn_current_session(
+            &mut *sessions,
+            &mut commands,
+            &mut *meshes,
+            &mut *materials,
+        );
     }
 }
 
@@ -133,13 +153,13 @@ fn handle_connection_events(
     mut _commands: Commands,
     _net: Res<NetworkServer>,
     mut network_events: EventReader<ServerNetworkEvent>,
-    mut sessions: ResMut<DebugSessions>,
+    mut sessions: ResMut<Sessions>,
 ) {
     // info!("handle_connection_events");
     for event in network_events.iter() {
         info!("got event");
         if let ServerNetworkEvent::Connected(conn_id) = event {
-            let session = DebugSession::new(*conn_id);
+            let session = Session::new(*conn_id);
             sessions.insert(session);
 
             //TODO: send accept accepted to client
@@ -151,7 +171,7 @@ fn handle_connection_events(
 fn handle_messages(
     mut new_messages: EventReader<NetworkData<threebug_core::ipc::DebugEntity>>,
     // net: Res<NetworkServer>,
-    mut sessions: ResMut<DebugSessions>,
+    mut sessions: ResMut<Sessions>,
 ) {
     for message in new_messages.iter() {
         info!(
@@ -160,7 +180,7 @@ fn handle_messages(
         );
 
         let conn_id = message.source();
-        if let Some(session) = sessions.get_mut(&conn_id) {
+        if let Some(session) = sessions.get_mut(&conn_id.uuid().to_string()) {
             let inner = message.deref();
             session.history.push(inner.clone());
             info!("{} entitiees", session.history.len());
