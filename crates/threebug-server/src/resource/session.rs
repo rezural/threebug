@@ -128,18 +128,17 @@ impl Sessions {
     pub fn insert(&mut self, session: Session) -> Option<Session> {
         // set the current_session to session if it is the first
         if self.sessions.is_empty() {
-            self.set_current_session(session.conn_id);
+            self.set_current_session(&session);
         }
-        self.sessions
-            .insert(session.conn_id.uuid().to_string(), session)
+        self.sessions.insert(session.id(), session)
     }
 
     pub fn get_mut(&mut self, session_id: &str) -> Option<&mut Session> {
         self.sessions.get_mut(session_id)
     }
 
-    pub fn set_current_session(&mut self, conn_id: ConnectionId) {
-        self.current_session_id = Some(conn_id.uuid().to_string());
+    pub fn set_current_session(&mut self, session: &Session) {
+        self.current_session_id = Some(session.id());
     }
 
     pub fn current_session_id(&self) -> Option<String> {
@@ -162,9 +161,7 @@ impl Sessions {
     }
 
     pub fn session_ids(&self) -> Vec<String> {
-        self.sessions()
-            .map(|s| s.conn_id.uuid().to_string())
-            .collect()
+        self.sessions().map(|s| s.id()).collect()
     }
 
     pub fn sessions(&self) -> impl Iterator<Item = &Session> {
