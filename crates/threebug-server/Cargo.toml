@@ -23,9 +23,4 @@ smooth-bevy-cameras = { git = "https://github.com/rezural/smooth-bevy-cameras.gi
 bevy_egui = "0.8.0"
 indexmap = "1.7.0"
 
-# [patch.crates-io]
-# bevy = { path = "vendor/bevy" }
-# bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
 
-# [patch."https://github.com/bevyengine/bevy"]
-# bevy = { path = "vendor/bevy" }
