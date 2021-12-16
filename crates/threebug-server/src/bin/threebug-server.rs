@@ -91,7 +91,6 @@ fn setup(
     mut commands: Commands,
     mut _meshes: ResMut<Assets<Mesh>>,
     mut _materials: ResMut<Assets<StandardMaterial>>,
-    mut controllers: Query<&mut Fps3dCameraController>,
 ) {
     commands.spawn_bundle(Fps3dCameraBundle::new(
         Fps3dCameraController {
