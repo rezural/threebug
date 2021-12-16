@@ -195,25 +195,29 @@ fn cursor_grab_system(
     mut controllers: Query<&mut Fps3dCameraController>,
     ui_context: Res<EguiContext>,
 ) {
-    if ui_context.ctx().wants_pointer_input() {
-        return;
-    }
     let window = windows.get_primary_mut().unwrap();
 
     let mut controller = controllers.single_mut().unwrap();
+
+    // we want to be able to catch Esc keys, even if ctx().wants_pointer_input()
+    if key.just_pressed(KeyCode::Escape) {
+        info!("disabling fps 3d controller");
+        controller.enabled = false;
+        window.set_cursor_lock_mode(false);
+        window.set_cursor_visibility(true);
+    }
+
+    if ui_context.ctx().is_pointer_over_area() {
+        return;
+    }
+
+    // but we dont want to respond to left mouse clicks
     if btn.just_pressed(MouseButton::Left) {
         info!("enabling fps 3d controller");
 
         controller.enabled = true;
         window.set_cursor_lock_mode(true);
         window.set_cursor_visibility(false);
-    }
-
-    if key.just_pressed(KeyCode::Escape) {
-        info!("disabling fps 3d controller");
-        controller.enabled = false;
-        window.set_cursor_lock_mode(false);
-        window.set_cursor_visibility(true);
     }
 }
 
@@ -246,7 +250,7 @@ fn fps(
 }
 
 fn egui_focus(ui_context: Res<EguiContext>, mut controllers: Query<&mut Fps3dCameraController>) {
-    let enabled = !ui_context.ctx().wants_pointer_input();
+    let enabled = !ui_context.ctx().is_pointer_over_area();
     for mut controller in controllers.iter_mut() {
         if controller.enabled {
             controller.enabled = enabled;

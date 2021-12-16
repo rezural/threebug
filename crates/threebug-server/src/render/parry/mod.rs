@@ -43,7 +43,7 @@ impl Spawnable for AABB {
             })
             .insert(Wireframe)
             .id();
-        self.entity = Some(entity.to_bits());
+        self.entity = Some(entity.to_bits().into());
     }
 
     fn despawn(
@@ -52,9 +52,9 @@ impl Spawnable for AABB {
         _meshes: &mut Assets<Mesh>,
         _materials: &mut Assets<StandardMaterial>,
     ) {
-        if let Some(entity) = self.entity {
+        if let Some(entity) = self.entity.clone() {
             commands
-                .entity(Entity::from_bits(entity))
+                .entity(Entity::from_bits(entity.id))
                 .despawn_recursive();
         }
     }

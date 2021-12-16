@@ -42,6 +42,10 @@ impl History {
     pub fn entities_mut(&mut self) -> impl Iterator<Item = &mut DebugEntity> {
         self.history.iter_mut()
     }
+
+    pub fn entities(&self) -> impl Iterator<Item = &DebugEntity> {
+        self.history.iter()
+    }
 }
 
 impl Default for History {

@@ -80,6 +80,10 @@ impl Session {
     pub fn id(&self) -> String {
         self.conn_id.uuid().to_string()
     }
+
+    pub fn name(&self) -> String {
+        self.id()
+    }
 }
 
 impl Spawnable for Session {
@@ -136,6 +140,10 @@ impl Sessions {
     pub fn get_mut(&mut self, session_id: &str) -> Option<&mut Session> {
         self.sessions.get_mut(session_id)
     }
+
+    // pub fn len(&self) -> usize {
+    //     self.sessions.len()
+    // }
 
     pub fn set_current_session(&mut self, session: &Session) {
         self.current_session_id = Some(session.id());
