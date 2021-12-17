@@ -61,7 +61,6 @@ fn main() {
         .add_startup_system(setup.system())
         .add_system(fps.system())
         .add_system(cursor_grab_system.system())
-        .add_system(egui_focus.system())
         .add_system(render.system());
 
     // Register parry server messages
@@ -258,14 +257,6 @@ fn fps(
     }
 }
 
-fn egui_focus(ui_context: Res<EguiContext>, mut controllers: Query<&mut Fps3dCameraController>) {
-    let enabled = !ui_context.ctx().is_pointer_over_area();
-    for mut controller in controllers.iter_mut() {
-        if controller.enabled {
-            controller.enabled = enabled;
-        }
-    }
-}
 
 pub fn register_server_network_messages(app: &mut AppBuilder) {
     app.listen_for_server_message::<DebugEntity>();
