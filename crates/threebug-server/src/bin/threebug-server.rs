@@ -4,8 +4,8 @@ use bevy::{
     // diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     input::mouse::MouseWheel,
     prelude::*,
-    render::wireframe::WireframePlugin,
-    wgpu::{WgpuFeature, WgpuFeatures, WgpuOptions},
+    // render::wireframe::WireframePlugin,
+    // wgpu::{WgpuFeature, WgpuFeatures, WgpuOptions},
 };
 // {
 //     core::Time,
@@ -41,15 +41,15 @@ fn main() {
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_plugin(LogDiagnosticsPlugin::default())
         // .insert_resource(Msaa { samples: 4 })
-        .insert_resource(WgpuOptions {
-            features: WgpuFeatures {
-                // The Wireframe requires NonFillPolygonMode feature
-                features: vec![WgpuFeature::NonFillPolygonMode],
-            },
-            ..Default::default()
-        })
+        // .insert_resource(WgpuOptions {
+        //     features: WgpuFeatures {
+        //         // The Wireframe requires NonFillPolygonMode feature
+        //         features: vec![WgpuFeature::NonFillPolygonMode],
+        //     },
+        //     ..Default::default()
+        // })
         .add_plugins(DefaultPlugins)
-        .add_plugin(WireframePlugin)
+        // .add_plugin(WireframePlugin)
         // bevy spicy networking
         .add_plugin(bevy_spicy_networking::ServerPlugin)
         // smooth bevy cameras
@@ -256,7 +256,6 @@ fn fps(
         }
     }
 }
-
 
 pub fn register_server_network_messages(app: &mut AppBuilder) {
     app.listen_for_server_message::<DebugEntity>();
