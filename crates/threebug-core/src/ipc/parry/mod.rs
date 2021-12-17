@@ -50,6 +50,6 @@ impl AABB {
 
 impl From<AABB> for Entity {
     fn from(aabb: AABB) -> Self {
-        aabb.entity.unwrap()
+        aabb.entity.unwrap_or_else(Entity::invalid)
     }
 }

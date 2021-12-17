@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut client = StandaloneNetworkClient::new();
     let ip_address = "127.0.0.1".parse().unwrap();
 
-    let socket_address = SocketAddr::new(ip_address, 9999);
+    let socket_address = SocketAddr::new(ip_address, 9876);
 
     info!("Address of the server: {}", socket_address);
 

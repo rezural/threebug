@@ -1,7 +1,7 @@
-use std::{net::SocketAddr, ops::Deref};
+use std::net::SocketAddr;
 
 use bevy::{
-    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    // diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     input::mouse::MouseWheel,
     prelude::*,
     render::wireframe::WireframePlugin,
@@ -26,10 +26,10 @@ use smooth_bevy_cameras::{
     LookTransformPlugin,
 };
 
-use threebug_core::ipc::DebugEntity;
+use threebug_core::{ipc::DebugEntity, EntityRegistry};
 use threebug_server::{
+    render::sessions::SessionsState,
     resource::session::{Session, Sessions},
-    ui::{session::SessionItemState, sessions::SessionsState},
 };
 
 use threebug_server::ui;
@@ -37,8 +37,9 @@ use threebug_server::ui;
 fn main() {
     let mut app = App::build();
 
-    app.add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_plugin(LogDiagnosticsPlugin::default())
+    app
+        // .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        // .add_plugin(LogDiagnosticsPlugin::default())
         // .insert_resource(Msaa { samples: 4 })
         .insert_resource(WgpuOptions {
             features: WgpuFeatures {
@@ -69,8 +70,9 @@ fn main() {
         .add_system(handle_connection_events.system())
         .add_system(handle_messages.system());
 
-    app.insert_resource(Sessions::new());
-    app.insert_resource(SessionsState::new());
+    app.insert_resource(Sessions::default());
+    app.insert_resource(SessionsState::default());
+    app.insert_resource(EntityRegistry::default());
 
     app.run();
 }
@@ -78,7 +80,7 @@ fn main() {
 fn setup_networking(mut net: ResMut<NetworkServer>) {
     let ip_address = "127.0.0.1".parse().expect("Could not parse ip address");
 
-    let socket_address = SocketAddr::new(ip_address, 9999);
+    let socket_address = SocketAddr::new(ip_address, 9876);
 
     info!("Address of the server: {}", socket_address);
 
@@ -160,7 +162,6 @@ fn handle_connection_events(
 ) {
     // info!("handle_connection_events");
     for event in network_events.iter() {
-        info!("got event");
         if let ServerNetworkEvent::Connected(conn_id) = event {
             let session = Session::new(*conn_id);
             sessions.insert(session);
@@ -175,29 +176,23 @@ fn handle_messages(
     mut new_messages: EventReader<NetworkData<threebug_core::ipc::DebugEntity>>,
     // net: Res<NetworkServer>,
     mut sessions: ResMut<Sessions>,
-    mut session_render_state: ResMut<SessionsState>,
+    mut entity_registry: ResMut<EntityRegistry>,
 ) {
+    let mut session_len = 0;
     for message in new_messages.iter() {
-        info!(
-            "Received debug message from client: {}, {:?}",
-            message.timestamp, message.entity_type
-        );
-
         let session_id = &message.source().uuid().to_string();
         if let Some(session) = sessions.get_mut(session_id) {
-            let inner = message.deref();
+            info!("Got session for: {}", session.id());
 
-            session.history.push(inner.clone());
-            if let Some(session_state) = session_render_state.get_mut(session_id) {
-                let entity = session.history.history.last().unwrap();
-                let item = SessionItemState {
-                    entity: entity.into(),
-                    visible: true,
-                };
-                session_state.state.push(item);
-            }
-            info!("{} entitiees", session.history.len());
+            let mut entity = (*message).clone();
+            entity_registry.assign_id(&mut entity.id);
+
+            info!("New Entity: {:?}", entity);
+
+            session.entities.push(entity.clone());
+            session_len = session.entities.len();
         }
+        info!("{} entities", session_len);
     }
 }
 
@@ -212,7 +207,7 @@ fn cursor_grab_system(
 
     let mut controller = controllers.single_mut().unwrap();
 
-    // we want to be able to catch Esc keys, even if ctx().wants_pointer_input()
+    // we want to be able to catch Esc keys, even if ctx().is_pointer_over_area()
     if key.just_pressed(KeyCode::Escape) {
         info!("disabling fps 3d controller");
         controller.enabled = false;

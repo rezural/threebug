@@ -1,22 +1,23 @@
+use bevy::prelude::info;
 // use bevy::prelude::Component;
 use bevy_spicy_networking::ConnectionId;
 use indexmap::IndexMap;
 
 use crate::render::Spawnable;
 
-use super::history::History;
+use super::entities::Entities;
 
 // #[derive(Component)]
 pub struct Session {
     pub conn_id: ConnectionId,
-    pub history: History,
+    pub entities: Entities,
 }
 
 impl Session {
     pub fn new(conn_id: ConnectionId) -> Self {
         Self {
             conn_id,
-            history: History::default(),
+            entities: Entities::default(),
         }
     }
 
@@ -36,7 +37,10 @@ impl Spawnable for Session {
         meshes: &mut bevy::prelude::Assets<bevy::prelude::Mesh>,
         materials: &mut bevy::prelude::Assets<bevy::prelude::StandardMaterial>,
     ) {
-        for debug_entity in self.history.entities_mut() {
+        info!("spawning");
+
+        for debug_entity in self.entities.entities_mut() {
+            info!("spawning entity");
             debug_entity.spawn(commands, meshes, materials);
         }
     }
@@ -47,7 +51,8 @@ impl Spawnable for Session {
         meshes: &mut bevy::prelude::Assets<bevy::prelude::Mesh>,
         materials: &mut bevy::prelude::Assets<bevy::prelude::StandardMaterial>,
     ) {
-        for debug_entity in self.history.entities_mut() {
+        for debug_entity in self.entities.entities_mut() {
+            info!("despawning");
             debug_entity.despawn(commands, meshes, materials);
         }
     }
@@ -65,13 +70,6 @@ pub struct Sessions {
 }
 
 impl Sessions {
-    pub fn new() -> Self {
-        Self {
-            sessions: IndexMap::new(),
-            current_session_id: None,
-        }
-    }
-
     pub fn insert(&mut self, session: Session) -> Option<Session> {
         // set the current_session to session if it is the first
         if self.sessions.is_empty() {
@@ -126,6 +124,9 @@ impl Sessions {
 
 impl Default for Sessions {
     fn default() -> Self {
-        Self::new()
+        Self {
+            sessions: IndexMap::new(),
+            current_session_id: None,
+        }
     }
 }

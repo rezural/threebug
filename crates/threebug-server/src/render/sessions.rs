@@ -1,15 +1,10 @@
-use std::collections::HashMap;
-
 use bevy::prelude::*;
 
 use crate::{render::Spawnable, resource::session::Sessions};
 
-use super::session::SessionState;
-
 #[derive(Default)]
 pub struct SessionsState {
     current_session_id: Option<String>,
-    sessions_state: HashMap<String, SessionState>,
 }
 
 impl SessionsState {
@@ -30,26 +25,6 @@ impl SessionsState {
         } else {
             self.current_session_id = None;
         }
-    }
-
-    pub fn sync_session_states(&mut self, sessions: &Sessions) {
-        for id in sessions.keys() {
-            self.sessions_state
-                .entry(id.clone())
-                .or_insert_with(SessionState::default);
-        }
-    }
-
-    pub fn current_session_state_mut(&mut self, sessions: &Sessions) -> Option<&mut SessionState> {
-        sessions.current_session_id().map(|id| {
-            self.sessions_state
-                .entry(id)
-                .or_insert_with(SessionState::default)
-        })
-    }
-
-    pub fn get_mut(&mut self, key: &str) -> Option<&mut SessionState> {
-        self.sessions_state.get_mut(key)
     }
 
     pub fn spawn_current_session(

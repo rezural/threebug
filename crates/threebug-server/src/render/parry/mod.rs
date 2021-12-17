@@ -34,6 +34,7 @@ impl Spawnable for AABB {
         meshes: &mut Assets<Mesh>,
         materials: &mut Assets<StandardMaterial>,
     ) {
+        info!("spawning aabb");
         let mesh = meshes.add(self.mesh());
         let entity = commands
             .spawn_bundle(PbrBundle {
@@ -52,7 +53,7 @@ impl Spawnable for AABB {
         _meshes: &mut Assets<Mesh>,
         _materials: &mut Assets<StandardMaterial>,
     ) {
-        if let Some(entity) = self.entity.clone() {
+        if let Some(entity) = self.entity {
             commands
                 .entity(Entity::from_bits(entity.id))
                 .despawn_recursive();

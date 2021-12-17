@@ -1,21 +1,37 @@
 use bevy::{prelude::*, window::Windows};
 use bevy_egui::EguiContext;
 
-pub mod session;
-pub mod sessions;
-
 use crate::resource::session::Sessions;
 
-use self::sessions::SessionsState;
+use threebug_core::Entity;
 
-pub fn ui(
-    mut ctx: ResMut<EguiContext>,
-    mut sessions: ResMut<Sessions>,
-    mut sessions_state: ResMut<SessionsState>,
-    windows: Res<Windows>,
-) {
+#[derive(Hash, Eq, PartialEq)]
+pub struct EntityUiState {
+    pub entity: Entity,
+    pub visible: bool,
+}
+
+impl EntityUiState {
+    pub fn new(entity: Entity) -> Self {
+        Self {
+            entity,
+            ..Default::default()
+        }
+    }
+}
+
+impl Default for EntityUiState {
+    fn default() -> Self {
+        Self {
+            entity: Default::default(),
+            visible: true,
+        }
+    }
+}
+
+pub fn ui(mut ctx: ResMut<EguiContext>, mut sessions: ResMut<Sessions>, windows: Res<Windows>) {
     let window = windows.get_primary().unwrap();
-    debug_sessions::sessions(&mut *ctx, &mut *sessions, &mut *sessions_state, window);
+    debug_sessions::sessions(&mut *ctx, &mut *sessions, window);
 }
 
 pub mod debug_sessions {
@@ -27,61 +43,45 @@ pub mod debug_sessions {
 
     use crate::resource::session::{Session, Sessions};
 
-    use super::{session::SessionState, sessions::SessionsState};
-
-    pub fn sessions(
-        ctx: &mut EguiContext,
-        sessions: &mut Sessions,
-        sessions_state: &mut SessionsState,
-        window: &Window,
-    ) {
+    pub fn sessions(ctx: &mut EguiContext, sessions: &mut Sessions, window: &Window) {
         egui::Window::new("Sessions")
             .anchor(Align2::LEFT_TOP, Vec2::new(0., 0.))
             .show(ctx.ctx(), |ui| {
                 let session_ids = sessions.session_ids();
-                if let Some(current) = sessions.current_session_id_mut() {
+                if let Some(current_id) = sessions.current_session_id_mut() {
                     ComboBox::from_id_source("Choose Session")
-                        .selected_text(current.clone())
+                        .selected_text(current_id.clone())
                         .show_ui(ui, |ui| {
                             // info!("current_session: {}", current);
                             for session in session_ids {
                                 // info!("session: {}", session);
-                                ui.selectable_value(current, session.clone(), session);
+                                ui.selectable_value(current_id, session.clone(), session);
                             }
                         });
                     ui.separator();
-                    let session_state = sessions_state.current_session_state_mut(sessions).unwrap();
-                    session_details(
-                        ui,
-                        sessions.current_session_mut().unwrap(),
-                        session_state,
-                        window,
-                    );
+                    session_details(ui, sessions.current_session_mut().unwrap(), window);
                 }
             });
     }
 
-    pub fn session_details(
-        ui: &mut Ui,
-        session: &mut Session,
-        session_state: &mut SessionState,
-        _window: &Window,
-    ) {
+    pub fn session_details(ui: &mut Ui, session: &mut Session, _window: &Window) {
         // let title = format!("Session: {}", session.name());
-        // ui.label(title);
+        // let len = session.entities.len();
+        // ui.label(format!("{}, {}", len, session_state.state.len()));
         // let height = window.height() * 0.95;
         ScrollArea::vertical()
             // .max_height(height)
             .show(ui, |ui| {
                 Grid::new("Sessions").show(ui, |ui| {
-                    for (state, entity) in session_state
-                        .state
+                    for (state, eui) in session
+                        .entities
+                        .entities
                         .iter_mut()
-                        .zip(session.history.history.iter())
+                        .zip(session.entities.ui.values_mut())
                     {
-                        let label = format!("{}", entity);
+                        let label = format!("{}", state);
                         ui.label(label);
-                        ui.checkbox(&mut state.visible, "visible");
+                        ui.checkbox(&mut eui.visible, "visible");
                         // ui.selectable_value(current, session.clone(), session);
                         ui.end_row();
                     }
@@ -123,7 +123,7 @@ pub mod debug_sessions_multiwindow {
             let height = window.height() * 0.95;
             ScrollArea::vertical().max_height(height).show(ui, |ui| {
                 Grid::new("Sessions").show(ui, |ui| {
-                    for entity in session.history.entities() {
+                    for entity in session.entities.entities() {
                         let label = format!("{}", entity);
                         ui.label(label);
                         // ui.selectable_value(current, session.clone(), session);

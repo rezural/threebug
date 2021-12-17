@@ -9,6 +9,7 @@ use parry3d::na::{Point3, Vector3};
 use threebug_core::ipc::{DebugEntity, DebugEntityType};
 
 pub mod parry;
+pub mod sessions;
 
 pub trait Spawnable {
     fn spawn(

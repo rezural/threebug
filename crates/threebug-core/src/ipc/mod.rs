@@ -36,18 +36,19 @@ impl From<DebugEntityType> for Entity {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DebugEntity {
     pub timestamp: DateTime<Local>,
+    pub id: Entity,
     pub entity_type: DebugEntityType,
 }
 
 impl From<DebugEntity> for Entity {
     fn from(debug_entity: DebugEntity) -> Self {
-        debug_entity.entity_type.into()
+        debug_entity.id
     }
 }
 
 impl From<&DebugEntity> for Entity {
     fn from(debug_entity: &DebugEntity) -> Self {
-        debug_entity.entity_type.clone().into()
+        debug_entity.id
     }
 }
 
@@ -60,8 +61,10 @@ impl Display for DebugEntity {
 impl DebugEntity {
     pub fn new(entity_type: DebugEntityType) -> Self {
         let timestamp = Local::now();
+        let id = Entity::invalid();
         Self {
             timestamp,
+            id,
             entity_type,
         }
     }
