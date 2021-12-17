@@ -120,22 +120,23 @@ fn render(
     mut session_render_state: ResMut<SessionsState>,
 ) {
     if session_render_state.is_current(&*sessions) {
-        // FIXME: check if we need to update
-        // if session.history.is_dirty() {
-        //     info!("session dirty");
-        //     for v in session.history.dirty_entities() {
-        //         info!("spawning entity");
-
-        //         match &mut v.entity_type {
-        //             ipc::DebugEntityType::Parry(ptype) => match ptype {
-        //                 ipc::parry::ParryDebugEntityType::AABB { aabb } => {
-        //                     aabb.spawn(&mut commands, &mut *meshes, &mut *materials);
-        //                 }
-        //             },
-        //         }
-        //     }
-        //     session.history.clean();
-        // }
+        let mut clean_session = false;
+        if let Some(session) = sessions.current_session() {
+            if session.entities.is_dirty() {
+                clean_session = true;
+                session_render_state.spawn_current_session(
+                    &mut *sessions,
+                    &mut commands,
+                    &mut *meshes,
+                    &mut *materials,
+                );
+            }
+        }
+        if clean_session {
+            if let Some(session) = sessions.current_session_mut() {
+                session.entities.clean();
+            }
+        }
     } else {
         session_render_state.despawn_current_session(
             &mut *sessions,

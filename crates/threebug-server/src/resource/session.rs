@@ -1,4 +1,4 @@
-use bevy::prelude::info;
+// use bevy::prelude::info;
 // use bevy::prelude::Component;
 use bevy_spicy_networking::ConnectionId;
 use indexmap::IndexMap;
@@ -37,10 +37,7 @@ impl Spawnable for Session {
         meshes: &mut bevy::prelude::Assets<bevy::prelude::Mesh>,
         materials: &mut bevy::prelude::Assets<bevy::prelude::StandardMaterial>,
     ) {
-        info!("spawning");
-
-        for debug_entity in self.entities.entities_mut() {
-            info!("spawning entity");
+        for debug_entity in self.entities.dirty_entities() {
             debug_entity.spawn(commands, meshes, materials);
         }
     }
@@ -52,7 +49,6 @@ impl Spawnable for Session {
         materials: &mut bevy::prelude::Assets<bevy::prelude::StandardMaterial>,
     ) {
         for debug_entity in self.entities.entities_mut() {
-            info!("despawning");
             debug_entity.despawn(commands, meshes, materials);
         }
     }

@@ -18,6 +18,10 @@ impl SessionsState {
         sessions.current_session_id() == self.current_session_id
     }
 
+    pub fn has_session(&self) -> bool {
+        self.current_session_id.is_some()
+    }
+
     /// Set the current session
     pub fn update_current_session(&mut self, sessions: &Sessions) {
         if let Some(current_session) = sessions.current_session() {
@@ -35,7 +39,7 @@ impl SessionsState {
         materials: &mut Assets<StandardMaterial>,
     ) {
         if let Some(current_session_id) = &self.current_session_id {
-            info!("Spawning session: {}", current_session_id);
+            debug!("Spawning session: {}", current_session_id);
             if let Some(session) = sessions.get_mut(current_session_id) {
                 session.spawn(commands, meshes, materials)
             }
@@ -50,7 +54,7 @@ impl SessionsState {
         materials: &mut Assets<StandardMaterial>,
     ) {
         if let Some(current_session_id) = &self.current_session_id {
-            info!("Despawning session: {}", current_session_id);
+            debug!("Despawning session: {}", current_session_id);
             if let Some(session) = sessions.get_mut(current_session_id) {
                 session.despawn(commands, meshes, materials)
             }
