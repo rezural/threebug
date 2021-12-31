@@ -8,11 +8,8 @@ members = [
 
 exclude = ["vendor/"]
 
-
-[patch."https://github.com/rezural/bevy_spicy_networking"]
-bevy_spicy_networking = { path = "vendor/bevy_spicy_networking" }
-
 [patch.crates-io]
+bevy_spicy_networking = { git = "https://github.com/rezural/bevy_spicy_networking", branch = "standalone-network-client-0.5" }
 # egui = { path = "vendor/egui/egui" }
 
 # bevy = { path = "vendor/bevy" }
@@ -20,3 +17,7 @@ bevy_spicy_networking = { path = "vendor/bevy_spicy_networking" }
 
 # [patch."https://github.com/bevyengine/bevy"]
 # bevy = { path = "vendor/bevy" }
+
+# [patch."https://github.com/rezural/bevy_spicy_networking"]
+# bevy_spicy_networking = { path = "vendor/bevy_spicy_networking" }
+

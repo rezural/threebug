@@ -10,7 +10,7 @@ bevy = { version = "0.5.0" }
 
 threebug-core = { path = "../threebug-core" }
 
-bevy_spicy_networking = { git = "https://github.com/rezural/bevy_spicy_networking", branch = "standalone-network-client-0.5" }
+bevy_spicy_networking = { version = "0.5.1" }
 # bevy_spicy_networking = { path = "../../vendor/bevy_spicy_networking" }
 
 parry3d = { version = "0.7", features = ["serde-serialize"] }

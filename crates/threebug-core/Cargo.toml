@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy_spicy_networking = { git = "https://github.com/rezural/bevy_spicy_networking", branch = "standalone-network-client-0.5" }
+bevy_spicy_networking = { version = "0.5.1" }
 chrono = { version = "0.4", features = [ "serde" ] }
 serde = "1"
 typetag = "0.1"
