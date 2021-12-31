@@ -38,20 +38,29 @@ cargo run --bin dbg-client-example
 
 This will send 10 AABB's to the dbg-server
 
+## UI
+
+3d Navigation is FPS style with WASD keybindings.
+
+Mouse Scroll will increase/decrease movement speed.
+
+
 ## TODO
 
 Client: 
 
-[ ] Flesh out client debugging interface (see below)
-[ ] Static initialization of network client, similar to tracing
+- [ ] Flesh out client debugging interface (see below)
+- [ ] Static initialization of network client, similar to tracing
 
 Server:
-[ ] Per client History
-[*] WASD
-[*] Actually display objects in 3d (currently only logging in server)
+
+- [x] Per client History
+- [x] WASD
+- [x] Actually display objects in 3d (currently only logging in server)
 
 Other
-[ ] 2d debugging, probably just display on plane in 3d
+
+- [ ] 2d debugging, probably just display on plane in 3d
 
 ## Client interface
 
